@@ -1,4 +1,5 @@
 ﻿using System.Reflection.Metadata.Ecma335;
+using Zalando.Models;
 using static System.Net.WebRequestMethods;
 
 namespace Zalando.Models
@@ -7,46 +8,53 @@ namespace Zalando.Models
     {
         private static int _maxId = 2;
 
+        //crea lista articoli
         private static List<Articolo> _articoli = [
-            new Articolo() { Id = 0, Name = "Stivale", Description = "É un bello stivale", ImgCover="https://th.bing.com/th/id/R.05c726598f03b8e74deffbb120c1807e?rik=N28ifn4XJXoISw&pid=ImgRaw&r=0", Price = 50, Deleted= false, ImgDetails=["https://images-na.ssl-images-amazon.com/images/I/41liOW8SAjL._SY395_QL70_.jpg", "https://th.bing.com/th/id/R.a08be4992a99021c15692d544991ab14?rik=T5l1O1bNDCxgKg&pid=ImgRaw&r=0"]},
-            new Articolo() { Id = 1, Name = "Sneakers", Description = "Comodo", ImgCover="https://th.bing.com/th/id/OIP.pZGFD1RcJ7JwXTJ8UNWqaAHaFF?rs=1&pid=ImgDetMain", Price = 50, Deleted= false, ImgDetails=["https://th.bing.com/th/id/R.610ad1df76d928f4c54b8d26f07704a0?rik=zFkIpGtHXM5Wgw&pid=ImgRaw&r=0", "https://th.bing.com/th/id/OIP.EpBY3rsEuLrw2y1yRG10lgHaI4?w=500&h=600&rs=1&pid=ImgDetMain"] },
-             new Articolo() { Id = 2, Name = "Ciabatte", Description = "Scomodo", ImgCover="https://th.bing.com/th/id/R.05c726598f03b8e74deffbb120c1807e?rik=N28ifn4XJXoISw&pid=ImgRaw&r=0", Price = 50, Deleted= false, ImgDetails=["https://images-na.ssl-images-amazon.com/images/I/41liOW8SAjL._SY395_QL70_.jpg", "https://th.bing.com/th/id/R.a08be4992a99021c15692d544991ab14?rik=T5l1O1bNDCxgKg&pid=ImgRaw&r=0"] }
+            new Articolo() { Id = 0, Name = "Stivale", Description = "Stivaletti stringati", ImgCover = "https://fenzy.it/media/uploads/public/product/18481-w1ax40602-02.jpg", Price = 45, Deleted = false, ImgDetails = ["https://m.media-amazon.com/images/I/816euPXLC0L._AC_SY695_.jpg", "https://m.media-amazon.com/images/I/91gdKP+IAGL._AC_SY695_.jpg"] },
+            new Articolo() { Id = 1, Name = "Sneakers", Description = "Sneakers basse rosa", ImgCover = "https://m.media-amazon.com/images/I/71JlPUHpIkL._AC_SY500_.jpg", Price = 60, Deleted = false, ImgDetails = ["https://m.media-amazon.com/images/I/710oDOpsaqL._AC_SY500_.jpg", "https://m.media-amazon.com/images/I/71fZpPFOZAL._AC_SY500_.jpg"] },
+            new Articolo() { Id = 2, Name = "Sandali", Description = "Sandali con plateau", ImgCover = "https://m.media-amazon.com/images/I/71Zrkcu5M6L._AC_SX500_.jpg", Price = 30, Deleted = false, ImgDetails = ["https://m.media-amazon.com/images/I/61F+69zZTzL._AC_SY695_.jpg", "https://m.media-amazon.com/images/I/71WcCm0EElL._AC_SX500_.jpg"] },
         ];
 
-
+        //mostra tutti gli articoli della lista non eliminati
         public static List<Articolo> GetAll()
         {
             List<Articolo> articoli = [];
-            foreach(var art in _articoli)
+            foreach (var art in _articoli)
             {
-                if(art.Deleted == false) articoli.Add(art);
+                if (art.Deleted == false) articoli.Add(art);
             }
             return articoli;
         }
 
+        //mostra tutti gli articoli della lista  eliminati
         public static List<Articolo> GetAllDeleted()
         {
             List<Articolo> artDeleted = [];
             foreach (var art in _articoli)
             {
-                if (art.Deleted ) artDeleted.Add(art);
+                if (art.Deleted) artDeleted.Add(art);
             }
             return artDeleted;
         }
-        
+
+
+        //ripristina articolo da cestino a lista
         public static Articolo? Recover(int IdToRecover)
         {
             int? index = findArtIndex(IdToRecover);
-          if(index != null)
+            if (index != null)
             {
+
                 var artRecovered = _articoli[(int)index];
-                artRecovered.Deleted = true;
+                artRecovered.Deleted = false;
                 return artRecovered;
             }
-          return null;
+
+            return null;
+
         }
 
-
+        //trova articolo nella lista
         private static int? findArtIndex(int id)
         {
             int i;
@@ -55,29 +63,30 @@ namespace Zalando.Models
             {
                 if (_articoli[i].Id == id)
                 {
-                    artFound = false;
-
+                    artFound = true;
                     break;
                 }
             }
 
-            if (artFound)  return i;
+            if (artFound) return i;
             return null;
         }
 
+
+        //ritorna un articolo in base all'ID
         public static Articolo? GetById(int? id)
         {
             if (id == null) return null;
-            for(int i = 0; i  < _articoli.Count; i++)
-            
+            for (int i = 0; i < _articoli.Count; i++)
             {
-                Articolo art= _articoli[i];
+                Articolo art = _articoli[i];
                 if (art.Id == id) return art;
             }
             return null;
         }
 
-        public static Articolo Add(string name, string descrizione, Articolo articolo)
+        //aggiunge elemento alla lista
+        public static Articolo Add(Articolo articolo)
         {
             _maxId++;
             articolo.Id = _maxId;
@@ -86,14 +95,15 @@ namespace Zalando.Models
             return articolo;
         }
 
+
+        //modifica articolo
         public static Articolo? Edit(Articolo articolo)
         {
             int? index = findArtIndex(articolo.Id);
-            if (index != 0)
+            if (index != null)
             {
                 _articoli[(int)index].Name = articolo.Name;
                 _articoli[(int)index].ImgCover = articolo.ImgCover;
-                _articoli[(int)index].Deleted = articolo.Deleted;
                 _articoli[(int)index].Price = articolo.Price;
                 _articoli[(int)index].Description = articolo.Description;
                 _articoli[(int)index].ImgDetails[0] = articolo.ImgDetails[0];
@@ -102,11 +112,14 @@ namespace Zalando.Models
             }
             return null;
         }
-        
-        public static Articolo? SoftDeleted(int idToDelete)
+
+
+
+        //aggiunge elemento al cestino
+        public static Articolo? SoftDelete(int idToDelete)
         {
             int? deletedI = findArtIndex(idToDelete);
-            if(deletedI != null) 
+            if (deletedI != null)
             {
                 var artDeleted = _articoli[(int)deletedI];
                 artDeleted.Deleted = true;
@@ -114,7 +127,9 @@ namespace Zalando.Models
             }
             return null;
         }
-        
+
+
+        //elimina definitivamente 
         public static Articolo? HardDelete(int idToDelete)
         {
             int? deletedI = findArtIndex(idToDelete);
@@ -127,11 +142,8 @@ namespace Zalando.Models
             return null;
         }
 
-        internal static void Add(Articolo articolo)
-        {
-            throw new NotImplementedException();
-        }
+
+
+
     }
-           
-     }
-    
+}
